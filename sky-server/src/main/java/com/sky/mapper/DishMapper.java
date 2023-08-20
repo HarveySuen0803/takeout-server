@@ -1,0 +1,33 @@
+package com.sky.mapper;
+
+import com.sky.annotation.AutoFill;
+import com.sky.entity.Dish;
+import com.sky.enumeration.OperationType;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
+
+@Mapper
+public interface DishMapper {
+    @AutoFill(OperationType.INSERT)
+    void insert(Dish dish);
+
+    @Select("select count(id) from dish where category_id = #{categoryId}")
+    Integer countCategoryId(Integer id);
+
+    List<Dish> selectByPage();
+
+    @Select("select * from dish where id = #{id}")
+    Dish selectById(Long id);
+
+    @Select("select status from dish where id = #{id}")
+    Integer selectStatusById(Long id);
+
+    void deleteByIdList(List<Long> idList);
+
+    @AutoFill(OperationType.UPDATE)
+    void update(Dish dish);
+
+    List<Dish> selectByCategoryId(Dish dish);
+}

@@ -1,0 +1,22 @@
+sky:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: localhost
+    port: 3306
+    database: sky_take_out
+    username: root
+    password: 111
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 111
+    database: 10
+  jwt:
+    admin-secret-key: hello world
+    admin-ttl: 86400
+    admin-token-name: token
+  alioss:
+    access-key-id: LTAI5tJEbyyMC2QJ4TgAFjFL
+    access-key-secret: d0t7VhBADa0OMb6QQHLPO2v7bcrQji
+    endpoint: https://oss-cn-shanghai.aliyuncs.com
+    bucket-name: demo-sun
