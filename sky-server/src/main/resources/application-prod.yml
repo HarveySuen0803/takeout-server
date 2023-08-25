@@ -13,10 +13,16 @@ sky:
     database: 10
   jwt:
     admin-secret-key: hello world
-    admin-ttl: 86400
-    admin-token-name: token
+    admin-ttl: 9999999999
+    admin-token-name: myToken
+    user-secret-key: hello world
+    user-ttl: 9999999999
+    user-token-name: myToken
   alioss:
     access-key-id: LTAI5tJEbyyMC2QJ4TgAFjFL
     access-key-secret: d0t7VhBADa0OMb6QQHLPO2v7bcrQji
     endpoint: https://oss-cn-shanghai.aliyuncs.com
     bucket-name: demo-sun
+  wechat:
+    appid: wxdb5e82f70f83a4cc
+    secret: b094dff2c6df67b67fa3fb986b4376b9

@@ -3,6 +3,7 @@ package com.sky.mapper;
 import com.sky.annotation.AutoFill;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
+import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -16,7 +17,7 @@ public interface DishMapper {
     @Select("select count(id) from dish where category_id = #{categoryId}")
     Integer countCategoryId(Integer id);
 
-    List<Dish> selectByPage();
+    List<DishVO> selectByPage();
 
     @Select("select * from dish where id = #{id}")
     Dish selectById(Long id);
@@ -29,5 +30,7 @@ public interface DishMapper {
     @AutoFill(OperationType.UPDATE)
     void update(Dish dish);
 
-    List<Dish> selectByCategoryId(Dish dish);
+    List<Dish> selectByCondition(Dish dish);
+
+    List<Dish> selectBySetmealId(Long setmealId);
 }

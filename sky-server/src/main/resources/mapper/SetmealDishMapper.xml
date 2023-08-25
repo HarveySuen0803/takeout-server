@@ -17,11 +17,18 @@
             #{dishId}
         </foreach>
     </select>
+    <select id="selectWithImageAndDescriptionBySetmealId" resultType="com.sky.vo.DishItemVO">
+        select sd.name, sd.copies, d.image, d.description
+        from setmeal_dish sd
+        left join dish d
+        on sd.dish_id = d.id
+        where sd.setmeal_id = #{setmealId}
+    </select>
     <insert id="insertList">
-        insert into setmeal_dish (setmeal_id, dish_id, name, price,copies)
+        insert into setmeal_dish (setmeal_id, dish_id, name, price, copies)
         values
-        <foreach collection="setmealDishes" item="sd" separator=",">
-            (#{sd.setmealId}, #{sd.dishId}, #{sd.name}, #{sd.price}, #{sd.copies})
+        <foreach collection="setmealDishList" item="setmealDish" separator=",">
+            (#{setmealDish.setmealId}, #{setmealDish.dishId}, #{setmealDish.name}, #{setmealDish.price}, #{setmealDish.copies})
         </foreach>
     </insert>
 </mapper>

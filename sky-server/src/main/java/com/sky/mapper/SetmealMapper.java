@@ -4,6 +4,7 @@ import com.sky.annotation.AutoFill;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.enumeration.OperationType;
+import com.sky.vo.SetmealVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -17,7 +18,7 @@ public interface SetmealMapper {
     @AutoFill(OperationType.INSERT)
     void insert(Setmeal setmeal);
 
-    List<Setmeal> selectByPage(SetmealPageQueryDTO setmealPageQueryDTO);
+    List<SetmealVO> selectByPage(SetmealPageQueryDTO setmealPageQueryDTO);
 
     void deleteByIdList(List<Long> idList);
 
@@ -29,4 +30,6 @@ public interface SetmealMapper {
 
     @AutoFill(OperationType.UPDATE)
     void update(Setmeal setmeal);
+
+    List<Setmeal> selectByCondition(Setmeal setmeal);
 }

@@ -2,6 +2,7 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.JwtClaimsConstant;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
@@ -13,37 +14,61 @@ import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.properties.JwtProperties;
 import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
+import com.sky.utils.JwtUtil;
+import com.sky.vo.EmployeeLoginVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
+    private JwtProperties jwtProperties;
+
+    @Autowired
     private EmployeeMapper employeeMapper;
 
-    public Employee login(EmployeeLoginDTO employeeLoginDTO) {
+    public EmployeeLoginVO login(EmployeeLoginDTO employeeLoginDTO) {
+        // select Employee
         String username = employeeLoginDTO.getUsername();
         String password = employeeLoginDTO.getPassword();
+        Employee employee = employeeMapper.selectByUsername(username);
 
-        Employee employee = employeeMapper.getByUsername(username);
-
+        // if Employee is not exist, throw Exception
         if (employee == null) {
             throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
         }
 
+        // if password is correct, throw Exception
         if (!DigestUtils.md5DigestAsHex(password.getBytes()).equals(employee.getPassword())) {
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
 
+        // if Employee.status is disable, throw Exception
         if (employee.getStatus().equals(StatusConstant.DISABLE)) {
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }
 
-        return employee;
+        // create JWT token
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
+        String token = JwtUtil.createJWT(jwtProperties.getAdminSecretKey(), jwtProperties.getAdminTtl(), claims);
+
+        // set EmployeeLoginVO
+        EmployeeLoginVO employeeLoginVO = new EmployeeLoginVO();
+        employeeLoginVO.setId(employee.getId());
+        employeeLoginVO.setUserName(employee.getUsername());
+        employeeLoginVO.setName(employee.getName());
+        employeeLoginVO.setToken(token);
+
+        return employeeLoginVO;
     }
 
     @Override
@@ -63,7 +88,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public void changeStatus(Long id, Integer status) {
+    public void updateStatusById(Long id, Integer status) {
         Employee employee = new Employee();
         employee.setId(id);
         employee.setStatus(status);

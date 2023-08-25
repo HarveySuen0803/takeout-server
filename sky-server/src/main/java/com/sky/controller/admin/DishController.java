@@ -55,6 +55,13 @@ public class DishController {
         return Result.success();
     }
 
+    @PostMapping("/status/{status}")
+    public Result<String> updateStatusById(Long id, @PathVariable Integer status) {
+        log.info("update Dish status, param is id={}, status={}", id, status);
+        dishService.updateStatusById(id, status);
+        return Result.success();
+    }
+
     @DeleteMapping
     public Result<String> deleteList(@RequestParam(value = "ids") List<Long> idList) {
         log.info("delete Dish list, param is (idList={})", idList);

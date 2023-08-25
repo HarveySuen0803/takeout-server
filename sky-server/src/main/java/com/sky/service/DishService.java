@@ -19,7 +19,11 @@ public interface DishService {
 
     DishVO selectWithFlavorListById(Long dishId);
 
+    List<DishVO> selectWithFlavorListByCategoryId(Long categoryId);
+
     void update(DishDTO dishDTO);
 
     List<Dish> selectByCategoryId(Long categoryId);
+
+    void updateStatusById(Long id, Integer status);
 }

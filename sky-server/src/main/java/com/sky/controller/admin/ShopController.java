@@ -15,7 +15,7 @@ public class ShopController {
 
     @PutMapping("/{status}")
     public Result<String> updateStatus(@PathVariable Integer status) {
-        log.info("change Shop status, param is (status={})", status);
+        log.info("update Shop status, param is (status={})", status);
         shopService.updateStatus(status);
         return Result.success();
     }
