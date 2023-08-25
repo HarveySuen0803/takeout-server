@@ -4,6 +4,8 @@ import com.sky.entity.ShoppingCart;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface ShoppingCartMapper {
     public Long selectIdByCondition(ShoppingCart shoppingCart);
@@ -14,4 +16,7 @@ public interface ShoppingCartMapper {
     void update(ShoppingCart shoppingCart);
 
     void insert(ShoppingCart shoppingCart);
+
+    @Select("select * from shopping_cart where user_id = #{userId}")
+    List<ShoppingCart> selectByUserId(Long userId);
 }

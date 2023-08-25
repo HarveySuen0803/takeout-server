@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
@@ -23,6 +24,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     DishMapper dishMapper;
     @Autowired
     SetmealMapper setmealMapper;
+
+    @Override
+    public List<ShoppingCart> selectByUserId() {
+        return shoppingCartMapper.selectByUserId(BaseContext.getCurrentId());
+    }
 
     @Override
     public void insert(ShoppingCartDTO shoppingCartDTO) {
