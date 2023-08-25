@@ -5,6 +5,7 @@ import com.sky.entity.ShoppingCart;
 import com.sky.result.Result;
 import com.sky.service.ShoppingCartService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +27,15 @@ public class ShoppingCartController {
 
     @GetMapping("/list")
     public Result<List<ShoppingCart>> selectByUserId() {
-        log.info("select ShoppingCart list");
+        log.info("select ShoppingCart by userId");
         List<ShoppingCart> shoppingCartList = shoppingCartService.selectByUserId();
         return Result.success(shoppingCartList);
+    }
+
+    @DeleteMapping("/clean")
+    public Result<String> deleteByUserId() {
+        log.info("delete ShoppingCart by userId");
+        shoppingCartService.deleteByUserId();
+        return Result.success();
     }
 }

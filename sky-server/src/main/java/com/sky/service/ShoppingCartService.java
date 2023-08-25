@@ -9,4 +9,6 @@ public interface ShoppingCartService {
     void insert(ShoppingCartDTO shoppingCartDTO);
 
     List<ShoppingCart> selectByUserId();
+
+    void deleteByUserId();
 }

@@ -26,11 +26,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     SetmealMapper setmealMapper;
 
     @Override
-    public List<ShoppingCart> selectByUserId() {
-        return shoppingCartMapper.selectByUserId(BaseContext.getCurrentId());
-    }
-
-    @Override
     public void insert(ShoppingCartDTO shoppingCartDTO) {
         ShoppingCart shoppingCart = new ShoppingCart();
         BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
@@ -69,5 +64,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         // insert goods
         shoppingCartMapper.insert(shoppingCart);
+    }
+
+    @Override
+    public List<ShoppingCart> selectByUserId() {
+        return shoppingCartMapper.selectByUserId(BaseContext.getCurrentId());
+    }
+
+    @Override
+    public void deleteByUserId() {
+        shoppingCartMapper.deleteByUserId(BaseContext.getCurrentId());
     }
 }
