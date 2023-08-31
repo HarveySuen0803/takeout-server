@@ -54,13 +54,11 @@ public class AddressBookServiceImpl implements AddressBookService {
     }
 
     @Override
-    public void updateDefaultById(Long id) {
-        AddressBook addressBook = new AddressBook();
+    public void updateDefaultById(AddressBook addressBook) {
         addressBook.setUserId(BaseContext.getCurrentId());
         addressBook.setIsDefault(0);
         addressBookMapper.updateDefaultByUserId(addressBook);
 
-        addressBook.setId(id);
         addressBook.setIsDefault(1);
         addressBookMapper.update(addressBook);
     }

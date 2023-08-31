@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@RestController
+@RestController("userAddressBookController")
 @RequestMapping("/user/addressBook")
 public class AddressBookController {
     @Autowired
@@ -59,9 +59,9 @@ public class AddressBookController {
     }
 
     @PutMapping("/default")
-    public Result<String> updateDefaultByid(Long id) {
-        log.info("update AddressBook by id, param is id={}", id);
-        addressBookService.updateDefaultById(id);
+    public Result<String> updateDefaultByid(@RequestBody AddressBook addressBook) {
+        log.info("update AddressBook by id, param is {}", addressBook);
+        addressBookService.updateDefaultById(addressBook);
         return Result.success();
     }
 

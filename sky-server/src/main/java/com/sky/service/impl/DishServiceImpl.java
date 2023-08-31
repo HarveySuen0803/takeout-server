@@ -107,7 +107,7 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    @Transactional // Transactions are required when associating to multiple Table
+    @Transactional
     public void insert(DishDTO dishDTO) {
         // insert dish
         Dish dish = new Dish();
@@ -170,7 +170,7 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    @Transactional
+    @Transactional // Transactions are required when associating to multiple Table
     public void deleteByIdList(List<Long> dishIdList) {
         // can not delete Dish that on sale
         for (Long dishId : dishIdList) {
