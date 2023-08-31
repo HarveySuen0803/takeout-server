@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@RestController
+@RestController("userShoppingCartController")
 @RequestMapping("/user/shoppingCart")
 public class ShoppingCartController {
     @Autowired

@@ -1,7 +1,7 @@
 package com.sky.vo;
 
 import com.sky.entity.OrderDetail;
-import com.sky.entity.Orders;
+import com.sky.entity.Order;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderVO extends Orders implements Serializable {
+public class OrderVO extends Order implements Serializable {
 
     //订单菜品信息
     private String orderDishes;
