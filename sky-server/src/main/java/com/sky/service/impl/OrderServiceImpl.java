@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -17,6 +18,7 @@ import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
+import com.sky.server.WebSocketServer;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderStatisticsVO;
@@ -30,7 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -44,6 +48,8 @@ public class OrderServiceImpl implements OrderService {
     AddressBookMapper addressBookMapper;
     @Autowired
     WeChatPayUtil weChatPayUtil;
+    @Autowired
+    WebSocketServer webSocketServer;
 
     @Transactional
     @Override
@@ -156,6 +162,14 @@ public class OrderServiceImpl implements OrderService {
         order.setCancelReason("user cancel");
         order.setCancelTime(LocalDateTime.now());
         orderMapper.update(order);
+    }
+
+    public void paySuccess() {
+        Map map = new HashMap();
+        map.put("id", 1);
+        map.put("orderId", 1);
+        String msg = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(msg);
     }
 
     @Override
@@ -300,5 +314,21 @@ public class OrderServiceImpl implements OrderService {
         order.setDeliveryTime(LocalDateTime.now());
 
         orderMapper.update(order);
+    }
+
+    @Override
+    public void remindOrder(Long id) {
+        Order order = orderMapper.selectById(id);
+
+        if (order == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Map map = new HashMap();
+        map.put("type", 2);
+        map.put("orderId", id);
+        map.put("content", "orderNumber: " + order.getNumber());
+        String jsonString = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(jsonString);
     }
 }

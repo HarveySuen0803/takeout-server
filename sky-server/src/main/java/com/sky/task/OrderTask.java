@@ -16,7 +16,7 @@ public class OrderTask {
     @Autowired
     OrderMapper orderMapper;
 
-    @Scheduled(cron = "0 * * * * ?") // execute once per minute
+    @Scheduled(cron = "0 0/5 * * * ?") // execute once per minute
     public void processOrderInTimeout() {
         log.info("process order in timeout, {}", LocalDateTime.now());
         List<Order> orderList = orderMapper.selectByStatusAndOrderTime(Order.PENDING_PAYMENT, LocalDateTime.now().plusMinutes(-15));

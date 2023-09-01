@@ -7,6 +7,7 @@ import com.sky.service.OrderService;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.message.ReusableMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,8 +48,15 @@ public class OrderController {
 
     @PostMapping("/repetition/{id}")
     public Result<String> repetition(@PathVariable Long id) {
-        log.info("repetition, param is id={}", id);
+        log.info("repetition order, param is id={}", id);
         orderService.repetition(id);
+        return Result.success();
+    }
+
+    @GetMapping("/reminder/{id}")
+    public Result<String> remindOrder(@PathVariable Long id) {
+        log.info("remind order, ");
+        orderService.remindOrder(id);
         return Result.success();
     }
 }
