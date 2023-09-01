@@ -6,4 +6,16 @@
         insert into user (openid, name, phone, sex, id_number, avatar, create_time)
         values (#{openid}, #{name}, #{phone}, #{sex}, #{idNumber}, #{avatar}, #{createTime})
     </insert>
+    <select id="countIdByTime" resultType="java.lang.Integer">
+        select count(id)
+        from `order`
+        <where>
+            <if test="beginDateTime != null">
+                and order_time &gt; #{beginDateTime}
+            </if>
+            <if test="endDateTime != null">
+                and order_time &lt; #{endDateTime}
+            </if>
+        </where>
+    </select>
 </mapper>
