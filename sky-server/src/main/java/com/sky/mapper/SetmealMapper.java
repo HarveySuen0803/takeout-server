@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface SetmealMapper {
@@ -32,4 +33,6 @@ public interface SetmealMapper {
     void update(Setmeal setmeal);
 
     List<Setmeal> selectByCondition(Setmeal setmeal);
+
+    Integer countIdByCondition(Map setmealMap);
 }

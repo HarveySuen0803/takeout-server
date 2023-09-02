@@ -60,7 +60,8 @@
         order by s.create_time desc
     </select>
     <select id="selectByCondition" resultType="com.sky.entity.Setmeal">
-        select * from setmeal
+        select *
+        from setmeal
         <where>
             <if test="name != null">
                 and name like concat('%',#{name},'%')
@@ -68,6 +69,15 @@
             <if test="categoryId != null">
                 and category_id = #{categoryId}
             </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+    <select id="countIdByCondition" resultType="java.lang.Integer">
+        select count(id)
+        from setmeal
+        <where>
             <if test="status != null">
                 and status = #{status}
             </if>

@@ -13,5 +13,5 @@ public interface UserMapper {
 
     void insert(User user);
 
-    Integer countIdByTime(Map map);
+    Integer countIdByCondition(Map userMap);
 }

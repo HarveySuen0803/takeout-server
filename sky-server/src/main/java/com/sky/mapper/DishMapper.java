@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DishMapper {
@@ -33,4 +34,6 @@ public interface DishMapper {
     List<Dish> selectByCondition(Dish dish);
 
     List<Dish> selectBySetmealId(Long setmealId);
+
+    Integer countIdByCondition(Map dishMap);
 }
