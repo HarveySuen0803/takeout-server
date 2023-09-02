@@ -5,20 +5,29 @@ import com.sky.entity.Order;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.SalesTop10ReportVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.service.WorkspaceService;
+import com.sky.vo.*;
 import io.jsonwebtoken.lang.Collections;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.datetime.standard.DateTimeFormatterFactoryBean;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.apache.poi.ss.util.SheetUtil.getCell;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -26,6 +35,8 @@ public class ReportServiceImpl implements ReportService {
     OrderMapper orderMapper;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    WorkspaceService workspaceService;
 
     @Override
     public TurnoverReportVO getTurnoverStatistics(LocalDate beginDate, LocalDate endDate) {
@@ -38,12 +49,12 @@ public class ReportServiceImpl implements ReportService {
             LocalDateTime beginDateTime = LocalDateTime.of(date, LocalTime.MIN);
             LocalDateTime endDateTime = LocalDateTime.of(date, LocalTime.MAX);
 
-            Map map = new HashMap();
-            map.put("beginDateTime", beginDateTime);
-            map.put("endDateTime", endDateTime);
-            map.put("status", Order.COMPLETED);
+            Map orderMap = new HashMap();
+            orderMap.put("beginDateTime", beginDateTime);
+            orderMap.put("endDateTime", endDateTime);
+            orderMap.put("status", Order.COMPLETED);
 
-            Double turnover = orderMapper.sumAmountByCondition(map);
+            Double turnover = orderMapper.sumAmountByCondition(orderMap);
 
             if (turnover == null) {
                 turnover = 0.0;
@@ -73,14 +84,14 @@ public class ReportServiceImpl implements ReportService {
             LocalDateTime endDateTime = LocalDateTime.of(date, LocalTime.MAX);
 
             // set newUserCount
-            Map map = new HashMap();
-            map.put("beginDateTime", null);
-            map.put("endDateTime", endDateTime);
-            Integer totalUserCount = userMapper.countIdByTime(map);
+            Map userMap = new HashMap();
+            userMap.put("beginDateTime", null);
+            userMap.put("endDateTime", endDateTime);
+            Integer totalUserCount = userMapper.countIdByCondition(userMap);
 
             // set totalUserCount
-            map.put("beginDateTime", beginDateTime);
-            Integer newUserCount = userMapper.countIdByTime(map);
+            userMap.put("beginDateTime", beginDateTime);
+            Integer newUserCount = userMapper.countIdByCondition(userMap);
 
             newUserCountList.add(newUserCount);
             totalUserCountList.add(totalUserCount);
@@ -107,15 +118,15 @@ public class ReportServiceImpl implements ReportService {
             LocalDateTime endDateTime = LocalDateTime.of(date, LocalTime.MAX);
 
             // set orderCount
-            Map map = new HashMap();
-            map.put("beginDateTime", beginDateTime);
-            map.put("endDateTime", endDateTime);
-            Integer orderCount = orderMapper.countIdByCondition(map);
+            Map orderMap = new HashMap();
+            orderMap.put("beginDateTime", beginDateTime);
+            orderMap.put("endDateTime", endDateTime);
+            Integer orderCount = orderMapper.countIdByCondition(orderMap);
             orderCountList.add(orderCount);
 
             // set validOrderCount
-            map.put("status", Order.COMPLETED);
-            Integer validOrderCount = orderMapper.countIdByCondition(map);
+            orderMap.put("status", Order.COMPLETED);
+            Integer validOrderCount = orderMapper.countIdByCondition(orderMap);
             validOrderCountList.add(validOrderCount);
         }
 
@@ -161,6 +172,53 @@ public class ReportServiceImpl implements ReportService {
         salesTop10ReportVO.setNumberList(StringUtils.join(numberList, ","));
 
         return salesTop10ReportVO;
+    }
+
+    @Override
+    public void exportBusinessData(HttpServletResponse response) {
+        LocalDateTime beginDateTime = LocalDateTime.now().minusDays(30).with(LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.now().minusDays(1).with(LocalTime.MAX);
+
+        BusinessDataVO businessDataForMonth = workspaceService.getBusinessData(beginDateTime, endDateTime);
+
+        try {
+            InputStream is = this.getClass().getClassLoader().getResourceAsStream("template/business-data.xlsx");
+            XSSFWorkbook excel = new XSSFWorkbook(is);
+            XSSFSheet sheet = excel.getSheet("sheet1");
+
+            XSSFRow row1 = sheet.getRow(1);
+            row1.getCell(1).setCellValue("time: " + beginDateTime + " - " + endDateTime);
+
+            XSSFRow row3 = sheet.getRow(3);
+            row3.getCell(2).setCellValue(businessDataForMonth.getTurnover());
+            row3.getCell(4).setCellValue(businessDataForMonth.getOrderCompletionRate());
+            row3.getCell(6).setCellValue(businessDataForMonth.getNewUsers());
+
+            XSSFRow row5 = sheet.getRow(5);
+            row5.getCell(2).setCellValue(businessDataForMonth.getValidOrderCount());
+            row5.getCell(4).setCellValue(businessDataForMonth.getUnitPrice());
+
+            for (int i = 0; i < 30; i++) {
+                beginDateTime = beginDateTime.plusDays(1);
+                BusinessDataVO businessDataForDay = workspaceService.getBusinessData(beginDateTime.with(LocalTime.MIN), beginDateTime.with(LocalTime.MAX));
+                XSSFRow row = sheet.getRow(7 + i);
+                row.getCell(1).setCellValue(beginDateTime.toString());
+                row.getCell(2).setCellValue(businessDataForDay.getTurnover());
+                row.getCell(3).setCellValue(businessDataForDay.getValidOrderCount());
+                row.getCell(4).setCellValue(businessDataForDay.getOrderCompletionRate());
+                row.getCell(5).setCellValue(businessDataForDay.getUnitPrice());
+                row.getCell(6).setCellValue(businessDataForDay.getNewUsers());
+            }
+
+            ServletOutputStream os = response.getOutputStream();
+            excel.write(os);
+
+            is.close();
+            os.close();
+            excel.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<LocalDate> getDateList(LocalDate beginDate, LocalDate endDate) {

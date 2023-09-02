@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 
 @Slf4j
@@ -24,7 +25,7 @@ public class ReportController {
     ReportService reportService;
 
     @GetMapping("/turnoverStatistics")
-    public Result<TurnoverReportVO> turnoverStatistics(
+    public Result<TurnoverReportVO> getTurnoverStatistics(
             @RequestParam("begin") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate beginDate,
             @RequestParam("end") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
     ) {
@@ -34,7 +35,7 @@ public class ReportController {
     }
 
     @GetMapping("/userStatistics")
-    public Result<UserReportVO> userStatistics(
+    public Result<UserReportVO> getUserStatistics(
             @RequestParam("begin") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate beginDate,
             @RequestParam("end") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
     ) {
@@ -44,7 +45,7 @@ public class ReportController {
     }
 
     @GetMapping("/ordersStatistics")
-    public Result<OrderReportVO> orderStatistics(
+    public Result<OrderReportVO> getOrderStatistics(
             @RequestParam("begin") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate beginDate,
             @RequestParam("end") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
     ) {
@@ -61,5 +62,12 @@ public class ReportController {
         log.info("get sales top, beginDate: {}, endDate: {}", beginDate, endDate);
         SalesTop10ReportVO salesTop10ReportVO = reportService.getSalesTop(beginDate, endDate);
         return Result.success(salesTop10ReportVO);
+    }
+
+    @GetMapping("/export")
+    public Result<String> exportBusinessData(HttpServletResponse response) {
+        log.info("export business data");
+        reportService.exportBusinessData(response);
+        return Result.success();
     }
 }
