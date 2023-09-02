@@ -1,5 +1,6 @@
 package com.sky.mapper;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrderPageQueryDTO;
 import com.sky.entity.Order;
 import org.apache.ibatis.annotations.Mapper;
@@ -27,4 +28,8 @@ public interface OrderMapper {
     List<Order> selectByStatusAndOrderTime(Integer status, LocalDateTime time);
 
     Double sumAmountByCondition(Map map);
+
+    Integer countIdByCondition(Map map);
+
+    List<GoodsSalesDTO> getSalesTop(LocalDateTime beginDateTime, LocalDateTime endDateTime);
 }
