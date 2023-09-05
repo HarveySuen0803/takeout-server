@@ -40,20 +40,20 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public TurnoverReportVO getTurnoverStatistics(LocalDate beginDate, LocalDate endDate) {
-        // set dateList
+        // get the list containing days from begin-date to end-date
         List<LocalDate> dateList = getDateList(beginDate, endDate);
 
-        // set turnoverList
+        // get list containing turnover
         List<Double> turnoverList = new ArrayList<>();
         for (LocalDate date : dateList) {
             LocalDateTime beginDateTime = LocalDateTime.of(date, LocalTime.MIN);
             LocalDateTime endDateTime = LocalDateTime.of(date, LocalTime.MAX);
 
+            // get turnover
             Map orderMap = new HashMap();
             orderMap.put("beginDateTime", beginDateTime);
             orderMap.put("endDateTime", endDateTime);
             orderMap.put("status", Order.COMPLETED);
-
             Double turnover = orderMapper.sumAmountByCondition(orderMap);
 
             if (turnover == null) {
@@ -63,7 +63,6 @@ public class ReportServiceImpl implements ReportService {
             turnoverList.add(turnover);
         }
 
-        // set turnoverReportVO
         TurnoverReportVO turnoverReportVO = new TurnoverReportVO();
         turnoverReportVO.setDateList(StringUtils.join(dateList, ","));
         turnoverReportVO.setTurnoverList(StringUtils.join(turnoverList, ","));
@@ -73,25 +72,27 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public UserReportVO getUserStatistics(LocalDate beginDate, LocalDate endDate) {
-        // set dateList
         List<LocalDate> dateList = getDateList(beginDate, endDate);
 
-        // set newUserCountList and totalUserCountList
+        // get the list containing the number of new user
         List<Integer> newUserCountList = new ArrayList<>();
+
+        // get the list containing the number of total user
         List<Integer> totalUserCountList = new ArrayList<>();
+
         for (LocalDate date : dateList) {
             LocalDateTime beginDateTime = LocalDateTime.of(date, LocalTime.MIN);
             LocalDateTime endDateTime = LocalDateTime.of(date, LocalTime.MAX);
 
-            // set newUserCount
+            // get the number of new user
             Map userMap = new HashMap();
-            userMap.put("beginDateTime", null);
-            userMap.put("endDateTime", endDateTime);
-            Integer totalUserCount = userMapper.countIdByCondition(userMap);
-
-            // set totalUserCount
             userMap.put("beginDateTime", beginDateTime);
+            userMap.put("endDateTime", endDateTime);
             Integer newUserCount = userMapper.countIdByCondition(userMap);
+
+            // get the number of total user
+            userMap.put("beginDateTime", null);
+            Integer totalUserCount = userMapper.countIdByCondition(userMap);
 
             newUserCountList.add(newUserCount);
             totalUserCountList.add(totalUserCount);
@@ -107,36 +108,40 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public OrderReportVO getOrderStatistics(LocalDate beginDate, LocalDate endDate) {
-        // set dateList
+        // get the list containing days from begin-date to end-date
         List<LocalDate> dateList = getDateList(beginDate, endDate);
 
-        // set orderCountList and validOrderCountList
+        // get the list containing the number of order
         List<Integer> orderCountList = new ArrayList<>();
+
+        // get the list containing the number of valid order
         List<Integer> validOrderCountList = new ArrayList<>();
+
+        // get orderCountList and validOrderCountList
         for (LocalDate date : dateList) {
             LocalDateTime beginDateTime = LocalDateTime.of(date, LocalTime.MIN);
             LocalDateTime endDateTime = LocalDateTime.of(date, LocalTime.MAX);
 
-            // set orderCount
+            // get the number of order
             Map orderMap = new HashMap();
             orderMap.put("beginDateTime", beginDateTime);
             orderMap.put("endDateTime", endDateTime);
             Integer orderCount = orderMapper.countIdByCondition(orderMap);
             orderCountList.add(orderCount);
 
-            // set validOrderCount
+            // get the number of the valid order
             orderMap.put("status", Order.COMPLETED);
             Integer validOrderCount = orderMapper.countIdByCondition(orderMap);
             validOrderCountList.add(validOrderCount);
         }
 
-        // count total order
+        // get the number of total order
         Integer totalOrderCount = orderCountList.stream().reduce(Integer::sum).get();
 
-        // count total valid order
+        // get the number of total valid order
         Integer totalValidOrderCount = validOrderCountList.stream().reduce(Integer::sum).get();
 
-        // set order completion rate
+        // get the order completion rate
         Double orderCompletionRate = 0.0;
         if (totalOrderCount != 0) {
             orderCompletionRate = totalValidOrderCount.doubleValue() / totalOrderCount;
@@ -158,13 +163,11 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime beginDateTime = LocalDateTime.of(beginDate, LocalTime.MIN);
         LocalDateTime endDateTime = LocalDateTime.of(endDate, LocalTime.MAX);
 
-        // get salesTopList
+        // get the list containing the ranking of sales
         List<GoodsSalesDTO> salesTopList = orderMapper.getSalesTop(beginDateTime, endDateTime);
 
-        // get nameList
         List<String> nameList = salesTopList.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList());
 
-        // get numberList
         List<Integer> numberList = salesTopList.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList());
 
         SalesTop10ReportVO salesTop10ReportVO = new SalesTop10ReportVO();
